@@ -53,7 +53,7 @@ This project lets you create a retro VHS collection experience with modern techn
 
 5. **Add your logo (optional):**
    ```bash
-   cp /path/to/your/logo.jpg public/logo.jpg
+   cp /path/to/your/logo.png public/logo.png
    ```
 
 6. **Start the development server:**
@@ -82,7 +82,7 @@ This project lets you create a retro VHS collection experience with modern techn
 The application displays a logo at the top of both the admin panel and scan page. Add your own:
 
 ```bash
-cp /path/to/your/logo.jpg public/logo.jpg
+cp /path/to/your/logo.png public/logo.png
 ```
 
 Recommended size: 450px wide, transparent or white background works best with the retro purple theme.
