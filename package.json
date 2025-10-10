@@ -1,0 +1,38 @@
+{
+  "name": "vhs-tap",
+  "version": "1.0.0",
+  "description": "Tap NFC-enabled VHS tapes to instantly play movies on Jellyfin",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "init-db": "node src/database/init.js"
+  },
+  "keywords": [
+    "jellyfin",
+    "nfc",
+    "vhs",
+    "media-server"
+  ],
+  "author": "8bits1beard",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/8bits1beard-io/vhs-tap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/8bits1beard-io/vhs-tap/issues"
+  },
+  "homepage": "https://github.com/8bits1beard-io/vhs-tap#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "sqlite3": "^5.1.6",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

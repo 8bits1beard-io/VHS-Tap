@@ -1,0 +1,9 @@
+-- Add metadata columns to vhs_tapes table
+ALTER TABLE vhs_tapes ADD COLUMN plot TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN poster_url TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN imdb_rating TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN genre TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN director TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN actors TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN runtime TEXT;
+ALTER TABLE vhs_tapes ADD COLUMN rated TEXT;

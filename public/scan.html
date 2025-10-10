@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VHS Tap - VHS Tape Scanned</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a0a3e 0%, #2d1b69 50%, #0f0c29 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    transparent 1px,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.03) 3px
+                );
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-with-icons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .vhs-icon-left {
+            font-size: 3rem;
+            animation: pulse 2s infinite;
+        }
+
+        .mr-movies-logo-img {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(196, 113, 237, 0.6));
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: #ff6b9d;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .retro-banner {
+            background: linear-gradient(90deg, #ff6b9d 0%, #c471ed 100%);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 15px auto;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+            }
+            to {
+                box-shadow: 0 4px 25px rgba(196, 113, 237, 0.6);
+            }
+        }
+
+        .vhs-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .card {
+            background: rgba(45, 27, 105, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(196, 113, 237, 0.2);
+            border: 2px solid rgba(196, 113, 237, 0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ff6b9d;
+            text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        .movie-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .movie-vhs-icon {
+            font-size: 2.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .movie-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .year {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            margin-left: 15px;
+        }
+
+        .overview {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .status.loading {
+            background: rgba(196, 113, 237, 0.2);
+            border: 2px solid #c471ed;
+            color: #e9b4ff;
+        }
+
+        .status.success {
+            background: rgba(255, 107, 157, 0.2);
+            border: 2px solid #ff6b9d;
+            color: #ffb3d1;
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ff6b9d;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .details {
+            display: none;
+        }
+
+        .details.show {
+            display: block;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c471ed 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(196, 113, 237, 0.4);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #ff5a8c 0%, #b561dc 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #12c2e9 0%, #6366f1 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(18, 194, 233, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #0db4d6 0%, #5558e0 100%);
+            box-shadow: 0 6px 20px rgba(18, 194, 233, 0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8a00 100%);
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.5);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff5a8c 0%, #ff7a00 100%);
+            box-shadow: 0 6px 20px rgba(255, 138, 0, 0.6);
+        }
+
+        .action-buttons {
+            margin-top: 30px;
+        }
+
+        .token-display {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0 10px 0;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+            color: #93c5fd;
+        }
+
+        .movie-details {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 25px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .poster-container {
+            position: relative;
+        }
+
+        .movie-poster {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            display: block;
+        }
+
+        .no-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .movie-metadata {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metadata-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .metadata-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .metadata-value {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+
+        .plot-text {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.7;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .rewind-message {
+            background: rgba(18, 194, 233, 0.2);
+            border: 2px solid #12c2e9;
+            padding: 12px 24px;
+            border-radius: 10px;
+            color: #12c2e9;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .powered-by {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .movie-details {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .poster-container {
+                max-width: 250px;
+                margin: 0 auto;
+            }
+
+            .mr-movies-logo-img {
+                max-width: 250px;
+            }
+
+            .vhs-icon-left {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 0.75rem;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo Branding -->
+        <div class="header-logo">
+            <img src="/logo.jpg" alt="VHS Tap" class="mr-movies-logo-img">
+        </div>
+
+        <div class="card">
+            <div id="loading" class="status loading">
+                <div class="loader"></div>
+                <p>Scanning VHS tape...</p>
+            </div>
+
+            <div id="content" style="display: none;">
+                <h1 id="statusTitle"></h1>
+
+                <div id="movieInfo" class="details">
+                    <div class="movie-title-container">
+                        <span class="movie-vhs-icon">📼</span>
+                        <div class="movie-title">
+                            <span id="movieTitle"></span>
+                            <span class="year" id="movieYear"></span>
+                        </div>
+                    </div>
+
+                    <div id="movieDetails" class="movie-details" style="display: none;">
+                        <div class="poster-container">
+                            <img id="moviePoster" class="movie-poster" alt="Movie Poster">
+                            <div id="noPoster" class="no-poster" style="display: none;">🎬</div>
+                        </div>
+
+                        <div class="movie-metadata">
+                            <div id="ratingRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Rating:</div>
+                                <div class="metadata-value">
+                                    <span class="rating-badge">
+                                        ⭐ <span id="movieRating"></span>/10
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div id="genreRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Genre:</div>
+                                <div class="metadata-value" id="movieGenre"></div>
+                            </div>
+
+                            <div id="runtimeRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Runtime:</div>
+                                <div class="metadata-value" id="movieRuntime"></div>
+                            </div>
+
+                            <div id="directorRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Director:</div>
+                                <div class="metadata-value" id="movieDirector"></div>
+                            </div>
+
+                            <div id="actorsRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Starring:</div>
+                                <div class="metadata-value" id="movieActors"></div>
+                            </div>
+
+                            <div id="ratedRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Rated:</div>
+                                <div class="metadata-value" id="movieRated"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="moviePlot" class="plot-text" style="display: none;"></div>
+                    <div class="overview" id="movieOverview"></div>
+                </div>
+
+                <div id="statusMessage" class="status"></div>
+
+                <div id="actionButtons" class="action-buttons" style="display: none;">
+                    <a id="playInJellyfinWeb" class="btn btn-primary" target="_blank">
+                        🎬 Watch Now
+                    </a>
+                </div>
+
+                <div class="token-display">
+                    Token: <span id="tokenDisplay"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer with retro messaging -->
+        <div class="footer">
+            <div class="rewind-message">⏪ Be Kind, Rewind ⏪</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - fetched from server
+        let JELLYFIN_URL = '';
+
+        // Get token from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        // Display token
+        document.getElementById('tokenDisplay').textContent = token || 'None';
+
+        let movieData = null;
+
+        // Initialize app
+        async function init() {
+            try {
+                // Fetch config from server
+                const configResponse = await fetch('/api/config');
+                const config = await configResponse.json();
+                JELLYFIN_URL = config.jellyfinUrl;
+
+                if (!token) {
+                    showError('No token provided', 'Please scan a valid NFC tag');
+                } else {
+                    scanToken(token);
+                }
+            } catch (error) {
+                console.error('Failed to load configuration:', error);
+                showError('Configuration Error', 'Failed to load server configuration');
+            }
+        }
+
+        // Start the app
+        init();
+
+        async function scanToken(token) {
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+                if (data.success) {
+                    movieData = data.data;
+                    showSuccess(data);
+                } else {
+                    showError('Scan Failed', data.error.message);
+                }
+            } catch (error) {
+                console.error('Error scanning token:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                showError('Connection Error', 'Failed to connect to the server');
+            }
+        }
+
+        function showSuccess(data) {
+            document.getElementById('statusTitle').textContent = '';
+
+            // Show movie info
+            const movieInfo = document.getElementById('movieInfo');
+            movieInfo.classList.add('show');
+
+            const movie = data.data.movie;
+            document.getElementById('movieTitle').textContent = movie.title;
+            document.getElementById('movieYear').textContent = movie.year || '';
+
+            // Display rich metadata if available
+            if (movie.poster_url || movie.plot || movie.imdb_rating) {
+                displayMetadata(movie);
+            } else if (movie.overview) {
+                document.getElementById('movieOverview').textContent = movie.overview;
+            }
+
+            // Set up Jellyfin link
+            const movieId = movie.id;
+            const playUrl = `${JELLYFIN_URL}/web/index.html#!/details?id=${movieId}`;
+
+            document.getElementById('playInJellyfinWeb').href = playUrl;
+
+            // Show status message
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.style.display = 'none';
+
+            // Show button
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+
+        function displayMetadata(movie) {
+            // Show the movie details grid
+            const detailsDiv = document.getElementById('movieDetails');
+            detailsDiv.style.display = 'grid';
+
+            // Poster
+            if (movie.poster_url) {
+                const posterImg = document.getElementById('moviePoster');
+                posterImg.src = movie.poster_url;
+                posterImg.style.display = 'block';
+                document.getElementById('noPoster').style.display = 'none';
+            } else {
+                document.getElementById('moviePoster').style.display = 'none';
+                document.getElementById('noPoster').style.display = 'flex';
+            }
+
+            // Plot
+            if (movie.plot) {
+                const plotDiv = document.getElementById('moviePlot');
+                plotDiv.textContent = movie.plot;
+                plotDiv.style.display = 'block';
+            }
+
+            // Rating
+            if (movie.imdb_rating) {
+                document.getElementById('movieRating').textContent = movie.imdb_rating;
+                document.getElementById('ratingRow').style.display = 'flex';
+            }
+
+            // Genre
+            if (movie.genre) {
+                document.getElementById('movieGenre').textContent = movie.genre;
+                document.getElementById('genreRow').style.display = 'flex';
+            }
+
+            // Runtime
+            if (movie.runtime) {
+                document.getElementById('movieRuntime').textContent = movie.runtime;
+                document.getElementById('runtimeRow').style.display = 'flex';
+            }
+
+            // Director
+            if (movie.director) {
+                document.getElementById('movieDirector').textContent = movie.director;
+                document.getElementById('directorRow').style.display = 'flex';
+            }
+
+            // Actors
+            if (movie.actors) {
+                document.getElementById('movieActors').textContent = movie.actors;
+                document.getElementById('actorsRow').style.display = 'flex';
+            }
+
+            // Rated
+            if (movie.rated) {
+                document.getElementById('movieRated').textContent = movie.rated;
+                document.getElementById('ratedRow').style.display = 'flex';
+            }
+        }
+
+        function showError(title, message) {
+            document.getElementById('statusTitle').textContent = '❌ ' + title;
+
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.className = 'status error';
+            statusMsg.innerHTML = '<strong>' + message + '</strong>';
+
+            document.getElementById('actionButtons').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
