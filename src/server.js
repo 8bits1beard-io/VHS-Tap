@@ -5,6 +5,7 @@ const path = require('path');
 const config = require('./config');
 const database = require('./database/db');
 const errorHandler = require('./middleware/errorHandler');
+const { adminAuth } = require('./middleware/auth');
 
 // Initialize Express app
 const app = express();
@@ -15,8 +16,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Serve static files (admin panel)
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static assets (CSS, JS, images) without auth
+app.use('/css', express.static(path.join(__dirname, '../public/css')));
+app.use('/js', express.static(path.join(__dirname, '../public/js')));
+app.use('/logo.png', express.static(path.join(__dirname, '../public/logo.png')));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -25,6 +28,11 @@ app.get('/health', (req, res) => {
     message: 'Jellyfin NFC VHS Server is running',
     timestamp: new Date().toISOString()
   });
+});
+
+// Admin panel - requires authentication
+app.get('/', adminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // API Routes
