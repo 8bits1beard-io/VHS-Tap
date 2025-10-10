@@ -1,8 +1,7 @@
 // API base URL (will work with relative URLs when deployed)
 const API_BASE = '';
 
-// Auth credentials (base64 encoded "admin:changeme")
-const authHeader = 'Basic YWRtaW46Y2hhbmdlbWU=';
+// No hardcoded credentials - browser will prompt for authentication
 
 // Load tapes on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -122,9 +121,7 @@ async function deleteTape(id, title) {
     try {
         const response = await fetch(`${API_BASE}/api/tapes/${id}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': authHeader
-            }
+            credentials: 'include'
         });
 
         const data = await response.json();
@@ -204,9 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function searchMovies(query) {
     try {
         const response = await fetch(`${API_BASE}/api/tapes/search/movies?q=${encodeURIComponent(query)}`, {
-            headers: {
-                'Authorization': authHeader
-            }
+            credentials: 'include'
         });
 
         const data = await response.json();
@@ -279,10 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(url, {
                     method,
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': authHeader
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    credentials: 'include'
                 });
 
                 const data = await response.json();
