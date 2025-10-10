@@ -7,5 +7,6 @@ node_modules/
 *.jpg
 *.jpeg
 *.png
+!public/logo.png
 Cover_Art/
 *.pdf
