@@ -5,6 +5,7 @@ function adminAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="VHS Tap Admin"');
     return res.status(401).json({
       success: false,
       error: { message: 'Authorization header required' }
@@ -26,6 +27,7 @@ function adminAuth(req, res, next) {
   if (username === config.admin.username && password === config.admin.password) {
     next();
   } else {
+    res.setHeader('WWW-Authenticate', 'Basic realm="VHS Tap Admin"');
     res.status(401).json({
       success: false,
       error: { message: 'Invalid credentials' }
