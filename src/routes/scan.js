@@ -155,12 +155,7 @@ router.post('/', async (req, res, next) => {
             message: 'Token validated but no users found for auto-playback',
             data: {
               tape,
-              movie: {
-                id: movieInfo.Id,
-                title: movieInfo.Name,
-                year: movieInfo.ProductionYear,
-                overview: movieInfo.Overview
-              }
+              movie: buildMovieObject(tape, movieInfo)
             }
           });
         }
@@ -187,12 +182,7 @@ router.post('/', async (req, res, next) => {
             message: 'Token validated but no active sessions found for auto-playback',
             data: {
               tape,
-              movie: {
-                id: movieInfo.Id,
-                title: movieInfo.Name,
-                year: movieInfo.ProductionYear,
-                overview: movieInfo.Overview
-              }
+              movie: buildMovieObject(tape, movieInfo)
             }
           });
         }
