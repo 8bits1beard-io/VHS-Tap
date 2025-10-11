@@ -20,9 +20,15 @@ async function fetchMovieMetadata(title, year) {
     });
 
     if (response.data.Response === 'True') {
+      // Convert poster URL from HTTP to HTTPS to avoid mixed content issues
+      let posterUrl = null;
+      if (response.data.Poster && response.data.Poster !== 'N/A') {
+        posterUrl = response.data.Poster.replace('http://', 'https://');
+      }
+
       return {
         plot: response.data.Plot,
-        poster_url: response.data.Poster !== 'N/A' ? response.data.Poster : null,
+        poster_url: posterUrl,
         imdb_rating: response.data.imdbRating !== 'N/A' ? response.data.imdbRating : null,
         genre: response.data.Genre,
         director: response.data.Director,
