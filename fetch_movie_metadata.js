@@ -90,7 +90,7 @@ async function main() {
 
   // Get all tapes from database
   const tapes = await db.all(
-    'SELECT id, movie_title, movie_year, plot, poster_url, imdb_rating, genre FROM vhs_tapes ORDER BY token'
+    'SELECT id, movie_title, movie_year, plot, poster_url, imdb_rating, genre, writer FROM vhs_tapes ORDER BY token'
   );
 
   console.log(`Found ${tapes.length} movies in database\n`);
@@ -103,7 +103,7 @@ async function main() {
     console.log(`📼 ${tape.movie_title} (${tape.movie_year})`);
 
     // Check if missing any metadata
-    const missingMetadata = !tape.plot || !tape.poster_url || !tape.imdb_rating || !tape.genre;
+    const missingMetadata = !tape.plot || !tape.poster_url || !tape.imdb_rating || !tape.genre || !tape.writer;
 
     if (!missingMetadata) {
       console.log(`  ⏭️  Already has complete metadata, skipping`);
