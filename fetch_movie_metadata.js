@@ -35,7 +35,8 @@ async function fetchMovieMetadata(title, year) {
         actors: response.data.Actors,
         writer: response.data.Writer !== 'N/A' ? response.data.Writer : null,
         runtime: response.data.Runtime,
-        rated: response.data.Rated
+        rated: response.data.Rated,
+        awards: response.data.Awards !== 'N/A' ? response.data.Awards : null
       };
     } else {
       console.log(`  ⚠️  OMDB API: ${response.data.Error}`);
@@ -52,7 +53,7 @@ async function updateMovieMetadata(tapeId, metadata) {
     await db.run(
       `UPDATE vhs_tapes
        SET plot = ?, poster_url = ?, imdb_rating = ?, genre = ?,
-           director = ?, actors = ?, writer = ?, runtime = ?, rated = ?,
+           director = ?, actors = ?, writer = ?, runtime = ?, rated = ?, awards = ?,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
       [
@@ -65,6 +66,7 @@ async function updateMovieMetadata(tapeId, metadata) {
         metadata.writer,
         metadata.runtime,
         metadata.rated,
+        metadata.awards,
         tapeId
       ]
     );
@@ -90,7 +92,7 @@ async function main() {
 
   // Get all tapes from database
   const tapes = await db.all(
-    'SELECT id, movie_title, movie_year, plot, poster_url, imdb_rating, genre, writer FROM vhs_tapes ORDER BY token'
+    'SELECT id, movie_title, movie_year, plot, poster_url, imdb_rating, genre, writer, awards FROM vhs_tapes ORDER BY token'
   );
 
   console.log(`Found ${tapes.length} movies in database\n`);
@@ -103,7 +105,7 @@ async function main() {
     console.log(`📼 ${tape.movie_title} (${tape.movie_year})`);
 
     // Check if missing any metadata
-    const missingMetadata = !tape.plot || !tape.poster_url || !tape.imdb_rating || !tape.genre || !tape.writer;
+    const missingMetadata = !tape.plot || !tape.poster_url || !tape.imdb_rating || !tape.genre || !tape.writer || !tape.awards;
 
     if (!missingMetadata) {
       console.log(`  ⏭️  Already has complete metadata, skipping`);

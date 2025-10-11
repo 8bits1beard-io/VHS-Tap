@@ -472,6 +472,11 @@
                                 <div class="metadata-label">Rated:</div>
                                 <div class="metadata-value" id="movieRated"></div>
                             </div>
+
+                            <div id="awardsRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Awards:</div>
+                                <div class="metadata-value" id="movieAwards"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -654,6 +659,12 @@
             if (movie.rated) {
                 document.getElementById('movieRated').textContent = movie.rated;
                 document.getElementById('ratedRow').style.display = 'flex';
+            }
+
+            // Awards
+            if (movie.awards) {
+                document.getElementById('movieAwards').textContent = movie.awards;
+                document.getElementById('awardsRow').style.display = 'flex';
             }
         }
 

@@ -22,7 +22,8 @@ function buildMovieObject(tape, jellyfinInfo) {
     actors: tape.actors,
     writer: tape.writer,
     runtime: tape.runtime,
-    rated: tape.rated
+    rated: tape.rated,
+    awards: tape.awards
   };
 }
 
