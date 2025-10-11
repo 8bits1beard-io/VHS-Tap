@@ -33,6 +33,7 @@ async function fetchMovieMetadata(title, year) {
         genre: response.data.Genre,
         director: response.data.Director,
         actors: response.data.Actors,
+        writer: response.data.Writer !== 'N/A' ? response.data.Writer : null,
         runtime: response.data.Runtime,
         rated: response.data.Rated
       };
@@ -51,7 +52,7 @@ async function updateMovieMetadata(tapeId, metadata) {
     await db.run(
       `UPDATE vhs_tapes
        SET plot = ?, poster_url = ?, imdb_rating = ?, genre = ?,
-           director = ?, actors = ?, runtime = ?, rated = ?,
+           director = ?, actors = ?, writer = ?, runtime = ?, rated = ?,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
       [
@@ -61,6 +62,7 @@ async function updateMovieMetadata(tapeId, metadata) {
         metadata.genre,
         metadata.director,
         metadata.actors,
+        metadata.writer,
         metadata.runtime,
         metadata.rated,
         tapeId

@@ -20,6 +20,7 @@ function buildMovieObject(tape, jellyfinInfo) {
     genre: tape.genre,
     director: tape.director,
     actors: tape.actors,
+    writer: tape.writer,
     runtime: tape.runtime,
     rated: tape.rated
   };

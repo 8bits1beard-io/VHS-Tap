@@ -135,7 +135,7 @@
         .movie-title-container {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 15px;
             margin: 20px 0;
         }
@@ -463,6 +463,11 @@
                                 <div class="metadata-value" id="movieActors"></div>
                             </div>
 
+                            <div id="writerRow" class="metadata-row" style="display: none;">
+                                <div class="metadata-label">Writer:</div>
+                                <div class="metadata-value" id="movieWriter"></div>
+                            </div>
+
                             <div id="ratedRow" class="metadata-row" style="display: none;">
                                 <div class="metadata-label">Rated:</div>
                                 <div class="metadata-value" id="movieRated"></div>
@@ -637,6 +642,12 @@
             if (movie.actors) {
                 document.getElementById('movieActors').textContent = movie.actors;
                 document.getElementById('actorsRow').style.display = 'flex';
+            }
+
+            // Writer
+            if (movie.writer) {
+                document.getElementById('movieWriter').textContent = movie.writer;
+                document.getElementById('writerRow').style.display = 'flex';
             }
 
             // Rated
