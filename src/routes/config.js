@@ -8,7 +8,8 @@ const config = require('../config');
  */
 router.get('/', (req, res) => {
   res.json({
-    jellyfinUrl: config.jellyfin.url
+    jellyfinUrl: config.jellyfin.url,
+    vhsTapUrl: config.vhsTapUrl
   });
 });
 

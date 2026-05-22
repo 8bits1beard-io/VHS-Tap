@@ -14,6 +14,7 @@ module.exports = {
     username: process.env.ADMIN_USERNAME || 'admin',
     password: process.env.ADMIN_PASSWORD || 'changeme'
   },
+  vhsTapUrl: process.env.VHS_TAP_URL || 'http://localhost:3000',
   autoPlayback: {
     enabled: process.env.AUTO_PLAYBACK_ENABLED === 'true',
     defaultUserId: process.env.DEFAULT_USER_ID || null,

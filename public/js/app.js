@@ -1,10 +1,18 @@
 // API base URL (will work with relative URLs when deployed)
 const API_BASE = '';
+let VHS_TAP_URL = '';
 
 // No hardcoded credentials - browser will prompt for authentication
 
-// Load tapes on page load
-document.addEventListener('DOMContentLoaded', () => {
+// Load config and tapes on page load
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const configResponse = await fetch(`${API_BASE}/api/config`);
+        const config = await configResponse.json();
+        VHS_TAP_URL = config.vhsTapUrl || '';
+    } catch (e) {
+        console.error('Failed to load config:', e);
+    }
     refreshTapes();
 });
 
@@ -36,18 +44,27 @@ function displayTapes(tapes) {
         return;
     }
 
-    tapesList.innerHTML = tapes.map(tape => `
+    tapesList.innerHTML = tapes.map(tape => {
+        const nfcUrl = `${VHS_TAP_URL}/scan?token=${encodeURIComponent(tape.token)}`;
+        return `
         <div class="tape-card">
             <h3>${tape.movie_title}</h3>
             <div class="token">${tape.token}</div>
             <div class="year">${tape.movie_year || 'N/A'}</div>
+            <div style="margin:10px 0;padding:10px;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid rgba(196,113,237,0.3)">
+                <label style="display:block;font-size:0.75rem;color:#c471ed;margin-bottom:5px;font-weight:600">NFC URL</label>
+                <div style="display:flex;gap:5px">
+                    <input type="text" value="${nfcUrl}" readonly onclick="this.select()" style="flex:1;padding:6px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);color:#fff;font-size:0.8rem;font-family:monospace">
+                    <button class="btn" onclick="navigator.clipboard.writeText('${nfcUrl}')" style="padding:6px 12px;font-size:0.8rem;flex:none">Copy</button>
+                </div>
+            </div>
             <div class="actions">
                 <button class="btn btn-success" onclick="testScan('${tape.token}')">Test Scan</button>
                 <button class="btn btn-secondary" onclick="editTape(${tape.id})">Edit</button>
                 <button class="btn btn-danger" onclick="deleteTape(${tape.id}, '${tape.movie_title}')">Delete</button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Update statistics
@@ -283,7 +300,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    alert(tapeId ? 'VHS tape updated successfully!' : 'VHS tape created successfully!');
+                    const token = data.data.token;
+                    const nfcUrl = `${VHS_TAP_URL}/scan?token=${encodeURIComponent(token)}`;
+                    alert(`${tapeId ? 'VHS tape updated' : 'VHS tape created'} successfully!\n\nNFC URL:\n${nfcUrl}`);
                     closeModal();
                     refreshTapes();
                 } else {
