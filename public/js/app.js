@@ -55,7 +55,7 @@ function displayTapes(tapes) {
                 <label style="display:block;font-size:0.75rem;color:#c471ed;margin-bottom:5px;font-weight:600">NFC URL</label>
                 <div style="display:flex;gap:5px">
                     <input type="text" value="${nfcUrl}" readonly onclick="this.select()" style="flex:1;padding:6px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);color:#fff;font-size:0.8rem;font-family:monospace">
-                    <button class="btn" onclick="navigator.clipboard.writeText('${nfcUrl}')" style="padding:6px 12px;font-size:0.8rem;flex:none">Copy</button>
+                    <button class="btn" onclick="copyUrl(this, '${nfcUrl}')" style="padding:6px 12px;font-size:0.8rem;flex:none">Copy</button>
                 </div>
             </div>
             <div class="actions">
@@ -260,6 +260,31 @@ function selectMovie(id, title, year) {
     }
     document.getElementById('movieResults').classList.remove('show');
     document.getElementById('movieSearch').value = title;
+}
+
+// Copy URL to clipboard with fallback
+function copyUrl(btn, url) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        }).catch(() => fallbackCopy(btn, url));
+    } else {
+        fallbackCopy(btn, url);
+    }
+}
+
+function fallbackCopy(btn, url) {
+    const textarea = document.createElement('textarea');
+    textarea.value = url;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
 }
 
 // Escape HTML for safe display
