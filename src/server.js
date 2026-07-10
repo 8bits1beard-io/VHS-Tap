@@ -26,6 +26,7 @@ app.get('/health', (req, res) => {
   res.json({
     success: true,
     message: 'Jellyfin NFC VHS Server is running',
+    version: config.version,
     timestamp: new Date().toISOString()
   });
 });

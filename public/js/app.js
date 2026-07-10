@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const config = await configResponse.json();
         VHS_TAP_URL = config.vhsTapUrl || '';
         JELLYFIN_URL = config.jellyfinUrl || '';
+        if (config.version) {
+            const v = document.getElementById('appVersion');
+            if (v) v.textContent = 'v' + config.version;
+        }
     } catch (e) {
         console.error('Failed to load config:', e);
     }

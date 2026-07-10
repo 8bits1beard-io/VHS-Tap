@@ -2,7 +2,7 @@
 
 Tap NFC-enabled VHS tapes to instantly play movies on Jellyfin. A Node.js + Express server that bridges your physical 3D printed VHS collection with your Jellyfin media server.
 
-**Author:** [8bits1beard](https://github.com/8bits1beard-io)
+**Author:** [8bits1beard LLC](https://github.com/8bits1beard-io)
 **Repository:** https://github.com/8bits1beard-io/vhs-tap
 
 ## Overview
@@ -147,7 +147,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License - see LICENSE file for details
+Licensed under the **PolyForm Noncommercial License 1.0.0** — you are free to use, modify, and share this software for **noncommercial** purposes, provided the copyright notice (© 8bits1beard LLC) is retained. **Commercial use — including selling the software or a service based on it — is not permitted** without a separate license. See the [LICENSE](LICENSE) file for full terms.
+
+For commercial licensing, contact 8bits1beard LLC.
+
+> Note: because of the noncommercial restriction, this is *source-available* software, not an OSI-approved "open source" license.
 
 ## Acknowledgments
 

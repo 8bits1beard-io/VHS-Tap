@@ -1,6 +1,6 @@
 {
   "name": "vhs-tap",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Tap NFC-enabled VHS tapes to instantly play movies on Jellyfin",
   "main": "src/server.js",
   "scripts": {
@@ -14,8 +14,8 @@
     "vhs",
     "media-server"
   ],
-  "author": "8bits1beard",
-  "license": "MIT",
+  "author": "8bits1beard LLC",
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
     "url": "https://github.com/8bits1beard-io/vhs-tap.git"

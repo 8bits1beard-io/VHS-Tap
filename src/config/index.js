@@ -3,6 +3,7 @@ require('dotenv').config();
 module.exports = {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
+  version: require('../../package.json').version,
   jellyfin: {
     url: process.env.JELLYFIN_URL || 'http://localhost:8096',
     apiKey: process.env.JELLYFIN_API_KEY
