@@ -6,10 +6,12 @@ Welcome! This guide will help you set up and configure VHS Tap from scratch.
 
 ### 1. **Web Admin Panel** (`http://localhost:3000`)
 A beautiful, responsive admin interface to manage your VHS tape collection:
-- View all VHS tapes in a grid layout
-- Add new tapes with Jellyfin movie search
-- Edit and delete existing tapes
-- Test NFC scans directly from the interface
+- View all VHS tapes in a grid layout, each with a QR code for writing its NFC tag
+- Add new tapes by **browsing your Jellyfin library** as a poster grid (movies already on a tape are badged)
+- Randomized tokens by default (with a 🎲 regenerate button), or enter your own
+- Automatic OMDB metadata on every new tape, plus a **Fetch Missing Metadata** button for older tapes
+- **Rescan Library** button to pull newly added Jellyfin movies into the picker
+- Edit and delete existing tapes; test NFC scans directly from the interface
 - View statistics (total tapes, total scans)
 
 ### 2. **User Scan Page** (`http://localhost:3000/scan?token=XXX`)
@@ -92,10 +94,10 @@ https://your-domain.com/scan?token=YOUR-TOKEN
 #### Option A: Using the Web Admin Panel (Easiest)
 1. Visit your admin panel
 2. Click "+ Add New VHS Tape"
-3. Enter the token (e.g., `MOVIE-VHS-001`)
-4. Search for the movie in your Jellyfin library
-5. Click the movie to select it
-6. Save
+3. A random token is filled in automatically (click 🎲 to regenerate, or type your own)
+4. Browse or filter your Jellyfin library and click the movie to select it
+5. Save — OMDB metadata is fetched automatically
+6. Scan the tape's QR code with your phone to write the URL to its NFC tag
 
 #### Option B: Using the API
 ```bash

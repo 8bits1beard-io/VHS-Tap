@@ -91,21 +91,15 @@ Available for both Android and iOS:
 - Android: https://play.google.com/store/apps/details?id=com.nxp.nfc.tagwriter
 - iOS: https://apps.apple.com/app/nfc-tagwriter-by-nxp/id1246143221
 
-## Token Naming Conventions
+## Tokens
 
-Use clear, memorable tokens for your VHS tapes:
+**By default, each tape gets a strong random token** (e.g. `mkaTUplS1iHX`) generated when you create it in the admin panel. This is recommended: random tokens can't be guessed or enumerated, so no one can farm your catalog by counting up through sequential URLs.
 
-### Examples:
-- `MOVIE1-VHS-001`
-- `MOVIE2-VHS-001`
-- `MOVIE3-VHS-001`
+You can still enter a **custom token** if you want a memorable one — just avoid guessable sequential patterns like `VHS-001`, `VHS-002` for anything you don't want discoverable.
 
-### Best Practices:
-1. **Keep it short** - easier to type and manage
-2. **Use hyphens** - improves readability
-3. **Include movie identifier** - helps you remember which tape is which
-4. **Add VHS suffix** - distinguishes from other NFC tags you might have
-5. **Number sequentially** - in case you make multiple copies
+### Getting the URL onto a tag
+
+Every tape card in the admin panel shows a **QR code** of its scan URL. Point your phone's camera at it (or click to enlarge) to grab the URL, then paste it into your NFC-writing app — no need to type the token by hand.
 
 ## Creating VHS Tapes in the System
 

@@ -13,6 +13,8 @@ Your VHS NFC system now supports displaying:
 - 🎥 **Director** - Who directed the film
 - 👥 **Actors** - Main cast members
 - 📋 **Plot** - Full plot description
+- ✍️ **Writer** - Screenwriter / story credits
+- 🏆 **Awards** - Oscars, wins & nominations
 - 🔞 **Rating** - Content rating (PG, PG-13, R, etc.)
 
 ## Setup Instructions
@@ -35,20 +37,19 @@ OMDB_API_KEY=your_actual_api_key_here
 
 Replace `your_actual_api_key_here` with the key you received via email.
 
-### Step 3: Fetch Movie Metadata
+### Step 3: That's It — Metadata Is Automatic
 
-Run the metadata fetch script:
+Once your OMDB key is set, **metadata is fetched automatically whenever you add a tape** (and re-fetched if you change a tape's movie). There's nothing to run.
+
+**For tapes added before you set the key** — or any that didn't match — click **🎬 Fetch Missing Metadata** in the admin panel. It fills in anything missing (rate-limited for OMDB).
+
+**Optional bulk/CLI backfill:** you can still run the standalone script from the command line:
 
 ```bash
 node fetch_movie_metadata.js
 ```
 
-This will:
-- Search OMDB for each movie in your database
-- Download posters, ratings, cast info, etc.
-- Save everything to your local database
-
-**Note:** The script includes a 1-second delay between requests to respect API rate limits.
+It skips tapes that already have complete metadata and adds a 1-second delay between requests to respect API rate limits.
 
 ### Step 4: Test It Out
 
@@ -88,6 +89,8 @@ The following columns have been added to `vhs_tapes` table:
 - `actors` - Main cast members
 - `runtime` - Movie duration (e.g., "116 min")
 - `rated` - Content rating (PG, R, etc.)
+- `writer` - Screenwriter / story credits
+- `awards` - Awards, wins & nominations
 
 ## Troubleshooting
 

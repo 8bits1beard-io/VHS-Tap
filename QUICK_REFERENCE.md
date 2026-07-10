@@ -50,9 +50,20 @@ PUT https://vhs.your-domain.com/api/tapes/:id
 DELETE https://vhs.your-domain.com/api/tapes/:id
 ```
 
-### Search Movies (Requires Auth)
+### Search / Browse Movies (Requires Auth)
 ```
 GET https://vhs.your-domain.com/api/tapes/search/movies?q=searchterm
+```
+(Omit `q` to browse the entire Jellyfin library.)
+
+### Rescan Jellyfin Library (Requires Auth)
+```
+POST https://vhs.your-domain.com/api/tapes/library/refresh
+```
+
+### Backfill Missing Metadata (Requires Auth)
+```
+POST https://vhs.your-domain.com/api/tapes/metadata/backfill
 ```
 
 ## Admin Authentication
