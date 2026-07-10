@@ -334,7 +334,7 @@ header p {
     padding: 30px;
     border-radius: 15px;
     width: 90%;
-    max-width: 600px;
+    max-width: 680px;
     max-height: 85vh;
     overflow-y: auto;
     animation: slideDown 0.3s ease;
@@ -459,6 +459,270 @@ header p {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 5px;
+}
+
+/* ===== Randomized token input ===== */
+.token-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.token-input-row input {
+    flex: 1;
+    font-family: monospace;
+}
+
+.btn-dice {
+    flex: none;
+    padding: 10px 14px;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* ===== QR code on tape cards ===== */
+.qr-block {
+    margin: 10px 0;
+    padding: 12px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.qr-block:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 16px rgba(196, 113, 237, 0.6);
+}
+
+.qr-img {
+    width: 130px;
+    height: 130px;
+    image-rendering: pixelated; /* keep QR crisp when scaled */
+}
+
+.qr-hint {
+    font-size: 0.7rem;
+    color: #2d1b69;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Enlarged QR modal */
+.qr-modal-content {
+    max-width: 420px;
+    text-align: center;
+}
+
+.qr-modal-token {
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: #c471ed;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.qr-modal-image {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 18px;
+}
+
+.qr-modal-image img {
+    display: block;
+    width: 260px;
+    height: 260px;
+    image-rendering: pixelated;
+}
+
+.qr-modal-url {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.qr-modal-url input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+/* ===== Library browse grid (movie picker) ===== */
+.library-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.library-header label {
+    margin-bottom: 0;
+}
+
+.btn-rescan {
+    flex: none;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.rescan-status {
+    display: none;
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.rescan-status.show {
+    display: block;
+}
+
+.rescan-status.info {
+    background: rgba(196, 113, 237, 0.15);
+    border: 1px solid rgba(196, 113, 237, 0.4);
+    color: #e5c9f5;
+}
+
+.rescan-status.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.movie-browse {
+    margin-top: 10px;
+    max-height: 46vh;
+    overflow-y: auto;
+    padding: 10px;
+    border: 2px solid rgba(196, 113, 237, 0.3);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    align-content: start;
+}
+
+.browse-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 20px;
+}
+
+.movie-card {
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background: rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 107, 157, 0.6);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.movie-card.selected {
+    border-color: #ff6b9d;
+    box-shadow: 0 0 16px rgba(255, 107, 157, 0.7);
+}
+
+.movie-card .poster {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.movie-card .poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.movie-card .no-poster {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.movie-card-title {
+    padding: 6px 6px 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.movie-card-year {
+    padding: 2px 6px 8px;
+    font-size: 0.7rem;
+    color: #c471ed;
+}
+
+.mapped-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    background: rgba(16, 185, 129, 0.9);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.movie-card.selected::after {
+    content: "✓";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ff6b9d;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selected-movie-box {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #fff;
+    font-weight: 600;
 }
 
 .scan-result {

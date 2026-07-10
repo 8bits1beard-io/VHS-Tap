@@ -34,6 +34,7 @@
         <section class="actions">
             <button class="btn btn-primary" onclick="showAddTapeModal()">+ Add New VHS Tape</button>
             <button class="btn btn-secondary" onclick="refreshTapes()">🔄 Refresh</button>
+            <button class="btn btn-secondary" onclick="backfillMetadata(this)" title="Fetch posters, plots, cast &amp; ratings for tapes missing them">🎬 Fetch Missing Metadata</button>
         </section>
 
         <section class="tapes-section">
@@ -60,30 +61,34 @@
 
                 <div class="form-group">
                     <label for="token">NFC Token *</label>
-                    <input type="text" id="token" name="token" required placeholder="e.g., VHS-001">
-                    <small>This is the unique identifier for your NFC tag</small>
+                    <div class="token-input-row">
+                        <input type="text" id="token" name="token" required placeholder="auto-generated">
+                        <button type="button" class="btn btn-secondary btn-dice" onclick="regenerateToken()" title="Generate a new random token">🎲</button>
+                    </div>
+                    <small>Randomized by default so others can't guess your tape URLs. You can type your own if you prefer.</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="movieSearch">Search Jellyfin Movies</label>
-                    <input type="text" id="movieSearch" placeholder="Search for a movie...">
-                    <div id="movieResults" class="movie-results"></div>
+                    <div class="library-header">
+                        <label for="movieSearch">Choose a Movie from Your Library</label>
+                        <button type="button" class="btn btn-secondary btn-rescan" id="rescanBtn" onclick="rescanLibrary()">🔄 Rescan Library</button>
+                    </div>
+                    <input type="text" id="movieSearch" placeholder="🔍 Filter your library...">
+                    <div id="rescanStatus" class="rescan-status"></div>
+                    <div id="movieBrowse" class="movie-browse">
+                        <p class="browse-loading">Loading your library…</p>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="movie_id">Movie ID *</label>
-                    <input type="text" id="movie_id" name="movie_id" required readonly>
+                <div class="form-group selected-movie" id="selectedMovie" style="display:none">
+                    <label>Selected Movie</label>
+                    <div class="selected-movie-box"><span id="selectedMovieText">None</span></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="movie_title">Movie Title *</label>
-                    <input type="text" id="movie_title" name="movie_title" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="movie_year">Year</label>
-                    <input type="number" id="movie_year" name="movie_year" min="1900" max="2100">
-                </div>
+                <!-- Populated automatically when a movie is picked above -->
+                <input type="hidden" id="movie_id" name="movie_id">
+                <input type="hidden" id="movie_title" name="movie_title">
+                <input type="hidden" id="movie_year" name="movie_year">
 
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -107,6 +112,24 @@
         </div>
     </div>
 
+    <!-- QR Code Modal (enlarged, for scanning with your phone) -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content qr-modal-content">
+            <span class="close" onclick="closeQrModal()">&times;</span>
+            <h2>📷 Scan to Program Tag</h2>
+            <p class="qr-modal-token" id="qrModalToken"></p>
+            <div id="qrModalImage" class="qr-modal-image"></div>
+            <div class="qr-modal-url">
+                <input type="text" id="qrModalUrl" readonly onclick="this.select()">
+                <button class="btn" onclick="copyUrl(this, document.getElementById('qrModalUrl').value)">Copy</button>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeQrModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/qrcode.js"></script>
     <script src="/js/app.js"></script>
 </body>
 </html>

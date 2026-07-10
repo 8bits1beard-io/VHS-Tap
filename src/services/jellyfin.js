@@ -138,6 +138,21 @@ class JellyfinService {
   }
 
   /**
+   * Trigger a Jellyfin library scan so newly added files get indexed.
+   * The scan runs asynchronously on the Jellyfin server (returns immediately).
+   * @returns {Promise<Object>} Result
+   */
+  async refreshLibrary() {
+    try {
+      await this.client.post('/Library/Refresh');
+      return { success: true };
+    } catch (error) {
+      console.error('Error triggering library scan:', error.message);
+      throw new Error(`Failed to trigger library scan: ${error.message}`);
+    }
+  }
+
+  /**
    * Get all movies from Jellyfin
    * @param {number} limit - Maximum number of results
    * @returns {Promise<Array>} List of movies

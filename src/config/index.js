@@ -7,6 +7,9 @@ module.exports = {
     url: process.env.JELLYFIN_URL || 'http://localhost:8096',
     apiKey: process.env.JELLYFIN_API_KEY
   },
+  omdb: {
+    apiKey: process.env.OMDB_API_KEY || null
+  },
   database: {
     path: process.env.DB_PATH || './vhs_nfc.db'
   },

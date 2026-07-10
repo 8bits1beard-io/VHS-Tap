@@ -1,6 +1,12 @@
 // API base URL (will work with relative URLs when deployed)
 const API_BASE = '';
 let VHS_TAP_URL = '';
+let JELLYFIN_URL = '';
+
+// Movie library browsing state
+let allMovies = [];                 // full library, fetched once per page load
+let mappedMovieIds = new Set();     // movie_ids already assigned to a tape
+let selectedMovieId = null;         // currently picked movie in the modal
 
 // No hardcoded credentials - browser will prompt for authentication
 
@@ -10,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const configResponse = await fetch(`${API_BASE}/api/config`);
         const config = await configResponse.json();
         VHS_TAP_URL = config.vhsTapUrl || '';
+        JELLYFIN_URL = config.jellyfinUrl || '';
     } catch (e) {
         console.error('Failed to load config:', e);
     }
@@ -39,6 +46,9 @@ async function refreshTapes() {
 function displayTapes(tapes) {
     const tapesList = document.getElementById('tapesList');
 
+    // Track which movies already live on a tape (for the "On a tape" badge)
+    mappedMovieIds = new Set(tapes.map(t => t.movie_id));
+
     if (tapes.length === 0) {
         tapesList.innerHTML = '<p class="loading">No VHS tapes yet. Add your first one!</p>';
         return;
@@ -46,6 +56,7 @@ function displayTapes(tapes) {
 
     tapesList.innerHTML = tapes.map(tape => {
         const nfcUrl = `${VHS_TAP_URL}/scan?token=${encodeURIComponent(tape.token)}`;
+        const qrThumb = makeQr(nfcUrl, 4, 8);
         return `
         <div class="tape-card">
             <h3>${tape.movie_title}</h3>
@@ -57,6 +68,10 @@ function displayTapes(tapes) {
                     <input type="text" value="${nfcUrl}" readonly onclick="this.select()" style="flex:1;padding:6px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);color:#fff;font-size:0.8rem;font-family:monospace">
                     <button class="btn" onclick="copyUrl(this, '${nfcUrl}')" style="padding:6px 12px;font-size:0.8rem;flex:none">Copy</button>
                 </div>
+            </div>
+            <div class="qr-block" onclick="showQrModal('${tape.token}')" title="Click to enlarge for easy scanning">
+                ${qrThumb ? `<img class="qr-img" src="${qrThumb}" alt="QR code for ${tape.token}">` : ''}
+                <span class="qr-hint">📷 Scan with your phone to grab this URL</span>
             </div>
             <div class="actions">
                 <button class="btn btn-success" onclick="testScan('${tape.token}')">Test Scan</button>
@@ -87,14 +102,71 @@ async function updateStats(tapes) {
     document.getElementById('totalScans').textContent = totalScans;
 }
 
+// Fetch OMDB metadata for any tapes missing it
+async function backfillMetadata(btn) {
+    if (!confirm('Fetch movie metadata (poster, plot, cast, ratings) for all tapes missing it?\n\nThis may take a few seconds per movie.')) {
+        return;
+    }
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ Fetching…';
+    try {
+        const res = await fetch(`${API_BASE}/api/tapes/metadata/backfill`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+            const d = data.data;
+            alert(`Metadata updated for ${d.updated} of ${d.checked} tape(s).` +
+                  (d.failed ? `\n${d.failed} could not be matched on OMDB.` : ''));
+            refreshTapes();
+        } else {
+            alert('Backfill failed: ' + (data.error ? data.error.message : 'unknown error'));
+        }
+    } catch (e) {
+        console.error('Backfill failed:', e);
+        alert('Backfill failed. Check the server logs.');
+    }
+    btn.disabled = false;
+    btn.textContent = original;
+}
+
+// Generate a strong random token (unguessable, to prevent URL farming)
+function generateToken(length = 12) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const arr = new Uint32Array(length);
+    (window.crypto || window.msCrypto).getRandomValues(arr);
+    let out = '';
+    for (let i = 0; i < length; i++) out += chars[arr[i] % chars.length];
+    return out;
+}
+
+// Replace the token field with a fresh random token
+function regenerateToken() {
+    document.getElementById('token').value = generateToken();
+}
+
 // Show add tape modal
 function showAddTapeModal() {
     document.getElementById('modalTitle').textContent = 'Add New VHS Tape';
     document.getElementById('tapeForm').reset();
     document.getElementById('tapeId').value = '';
-    document.getElementById('movieResults').innerHTML = '';
-    document.getElementById('movieResults').classList.remove('show');
+    document.getElementById('token').value = generateToken();  // randomized default
+    clearMovieSelection();
+    document.getElementById('movieSearch').value = '';
     document.getElementById('tapeModal').style.display = 'block';
+    loadMovieLibrary();
+}
+
+// Clear the currently selected movie in the modal
+function clearMovieSelection() {
+    selectedMovieId = null;
+    document.getElementById('movie_id').value = '';
+    document.getElementById('movie_title').value = '';
+    document.getElementById('movie_year').value = '';
+    document.getElementById('selectedMovie').style.display = 'none';
+    document.querySelectorAll('.movie-card.selected').forEach(c => c.classList.remove('selected'));
 }
 
 // Close modal
@@ -118,10 +190,17 @@ async function editTape(id) {
             document.getElementById('modalTitle').textContent = 'Edit VHS Tape';
             document.getElementById('tapeId').value = tape.id;
             document.getElementById('token').value = tape.token;
+            document.getElementById('movieSearch').value = '';
+            // Pre-select the tape's current movie
+            selectedMovieId = tape.movie_id;
             document.getElementById('movie_id').value = tape.movie_id;
             document.getElementById('movie_title').value = tape.movie_title;
             document.getElementById('movie_year').value = tape.movie_year || '';
+            document.getElementById('selectedMovieText').textContent =
+                tape.movie_title + (tape.movie_year ? ` (${tape.movie_year})` : '');
+            document.getElementById('selectedMovie').style.display = '';
             document.getElementById('tapeModal').style.display = 'block';
+            loadMovieLibrary();
         }
     } catch (error) {
         console.error('Error loading tape:', error);
@@ -195,71 +274,132 @@ async function testScan(token) {
     }
 }
 
-// Search movies
-let searchTimeout;
+// Live filter of the loaded library (client-side, no server round-trip)
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('movieSearch');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-
-            if (query.length < 2) {
-                document.getElementById('movieResults').classList.remove('show');
-                return;
-            }
-
-            searchTimeout = setTimeout(() => searchMovies(query), 500);
+            const query = e.target.value.trim().toLowerCase();
+            const filtered = query
+                ? allMovies.filter(m => (m.title || '').toLowerCase().includes(query))
+                : allMovies;
+            renderMovieGrid(filtered);
         });
     }
 });
 
-// Search movies in Jellyfin
-async function searchMovies(query) {
+// Fetch the whole movie library from Jellyfin (once per page load) and render it
+async function loadMovieLibrary() {
+    const grid = document.getElementById('movieBrowse');
     try {
-        const response = await fetch(`${API_BASE}/api/tapes/search/movies?q=${encodeURIComponent(query)}`, {
-            credentials: 'include'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            displayMovieResults(data.data);
+        if (allMovies.length === 0) {
+            grid.innerHTML = '<p class="browse-loading">Loading your library…</p>';
+            const response = await fetch(`${API_BASE}/api/tapes/search/movies?limit=1000`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (data.success) {
+                allMovies = data.data;
+            } else {
+                grid.innerHTML = '<p class="browse-loading">Could not load library.</p>';
+                return;
+            }
         }
+        // Re-apply any active filter text
+        const query = (document.getElementById('movieSearch').value || '').trim().toLowerCase();
+        const filtered = query
+            ? allMovies.filter(m => (m.title || '').toLowerCase().includes(query))
+            : allMovies;
+        renderMovieGrid(filtered);
     } catch (error) {
-        console.error('Error searching movies:', error);
+        console.error('Error loading library:', error);
+        grid.innerHTML = '<p class="browse-loading">Error loading library.</p>';
     }
 }
 
-// Display movie search results
-function displayMovieResults(movies) {
-    const resultsDiv = document.getElementById('movieResults');
+// Ask Jellyfin to scan for newly added movies, then refresh the grid
+async function rescanLibrary() {
+    const btn = document.getElementById('rescanBtn');
+    const status = document.getElementById('rescanStatus');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ Scanning…';
 
-    if (movies.length === 0) {
-        resultsDiv.innerHTML = '<div class="movie-item"><p>No movies found</p></div>';
-        resultsDiv.classList.add('show');
+    try {
+        const res = await fetch(`${API_BASE}/api/tapes/library/refresh`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error ? data.error.message : 'Scan request failed');
+        status.className = 'rescan-status info show';
+        status.textContent = 'Jellyfin is scanning for new movies. New titles appear once it finishes — if any are still missing, wait a minute and click Rescan again.';
+    } catch (e) {
+        console.error('Rescan failed:', e);
+        status.className = 'rescan-status error show';
+        status.textContent = 'Could not start the scan. Check the server logs.';
+    }
+
+    // Re-pull the library now (catches anything already indexed) and again shortly after
+    allMovies = [];
+    await loadMovieLibrary();
+    setTimeout(async () => { allMovies = []; await loadMovieLibrary(); }, 12000);
+
+    btn.disabled = false;
+    btn.textContent = original;
+}
+
+// Build a Jellyfin poster URL (images are served publicly, no API key needed)
+function posterUrl(movie) {
+    if (!movie.imageTag || !JELLYFIN_URL) return null;
+    return `${JELLYFIN_URL}/Items/${movie.id}/Images/Primary`
+         + `?fillHeight=330&fillWidth=220&quality=90&tag=${encodeURIComponent(movie.imageTag)}`;
+}
+
+// Render the browsable poster grid
+function renderMovieGrid(movies) {
+    const grid = document.getElementById('movieBrowse');
+
+    if (!movies || movies.length === 0) {
+        grid.innerHTML = '<p class="browse-loading">No movies match your filter.</p>';
         return;
     }
 
-    resultsDiv.innerHTML = movies.map(movie => `
-        <div class="movie-item" onclick="selectMovie('${movie.id}', '${escapeHtml(movie.title)}', ${movie.year || 'null'})">
-            <h4>${movie.title} ${movie.year ? `(${movie.year})` : ''}</h4>
-            <p>${movie.overview ? movie.overview.substring(0, 150) + '...' : 'No description'}</p>
-        </div>
-    `).join('');
-
-    resultsDiv.classList.add('show');
+    grid.innerHTML = movies.map(m => {
+        const mapped = mappedMovieIds.has(m.id);
+        const selected = m.id === selectedMovieId ? ' selected' : '';
+        const url = posterUrl(m);
+        const poster = url
+            ? `<img loading="lazy" src="${url}" alt="">`
+            : '<div class="no-poster">🎬</div>';
+        const label = escapeHtml(m.title) + (m.year ? ` (${m.year})` : '');
+        return `
+        <div class="movie-card${selected}" data-id="${m.id}" title="${label}" onclick="selectMovie('${m.id}')">
+            ${mapped ? '<span class="mapped-badge">On a tape</span>' : ''}
+            <div class="poster">${poster}</div>
+            <div class="movie-card-title">${escapeHtml(m.title)}</div>
+            <div class="movie-card-year">${m.year || ''}</div>
+        </div>`;
+    }).join('');
 }
 
-// Select a movie from search results
-function selectMovie(id, title, year) {
-    document.getElementById('movie_id').value = id;
-    document.getElementById('movie_title').value = title;
-    if (year) {
-        document.getElementById('movie_year').value = year;
-    }
-    document.getElementById('movieResults').classList.remove('show');
-    document.getElementById('movieSearch').value = title;
+// Select a movie from the grid (looked up by id to avoid quoting issues)
+function selectMovie(id) {
+    const movie = allMovies.find(m => m.id === id);
+    if (!movie) return;
+
+    selectedMovieId = id;
+    document.getElementById('movie_id').value = movie.id;
+    document.getElementById('movie_title').value = movie.title;
+    document.getElementById('movie_year').value = movie.year || '';
+
+    document.getElementById('selectedMovieText').textContent =
+        movie.title + (movie.year ? ` (${movie.year})` : '');
+    document.getElementById('selectedMovie').style.display = '';
+
+    // Highlight the chosen card
+    document.querySelectorAll('.movie-card').forEach(c =>
+        c.classList.toggle('selected', c.dataset.id === id));
 }
 
 // Copy URL to clipboard with fallback
@@ -294,6 +434,35 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Generate a QR code data URL locally (no external service) for a given string
+function makeQr(text, cellSize = 4, margin = 8) {
+    try {
+        const qr = qrcode(0, 'M');   // type 0 = auto-size, 'M' error correction
+        qr.addData(text);
+        qr.make();
+        return qr.createDataURL(cellSize, margin);
+    } catch (e) {
+        console.error('QR generation failed:', e);
+        return null;
+    }
+}
+
+// Show an enlarged QR + URL for one tape, for easy phone scanning
+function showQrModal(token) {
+    const nfcUrl = `${VHS_TAP_URL}/scan?token=${encodeURIComponent(token)}`;
+    const big = makeQr(nfcUrl, 7, 16);
+    document.getElementById('qrModalToken').textContent = token;
+    document.getElementById('qrModalUrl').value = nfcUrl;
+    document.getElementById('qrModalImage').innerHTML = big
+        ? `<img src="${big}" alt="QR code for ${token}">`
+        : '<p>QR unavailable</p>';
+    document.getElementById('qrModal').style.display = 'block';
+}
+
+function closeQrModal() {
+    document.getElementById('qrModal').style.display = 'none';
+}
+
 // Handle form submission
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('tapeForm');
@@ -302,6 +471,12 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const tapeId = document.getElementById('tapeId').value;
+
+            if (!document.getElementById('movie_id').value) {
+                alert('Please pick a movie from your library first.');
+                return;
+            }
+
             const formData = {
                 token: document.getElementById('token').value,
                 movie_id: document.getElementById('movie_id').value,
@@ -345,11 +520,15 @@ document.addEventListener('DOMContentLoaded', () => {
 window.onclick = function(event) {
     const tapeModal = document.getElementById('tapeModal');
     const scanModal = document.getElementById('scanModal');
+    const qrModal = document.getElementById('qrModal');
 
     if (event.target === tapeModal) {
         closeModal();
     }
     if (event.target === scanModal) {
         closeScanModal();
+    }
+    if (event.target === qrModal) {
+        closeQrModal();
     }
 }
