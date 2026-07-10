@@ -5,6 +5,15 @@ All notable changes to VHS Tap are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-07-10
+
+### Fixed
+- Auto-playback to a Jellyfin device (e.g. NVIDIA Shield) now works. The play
+  command sent its parameters in the request body, which Jellyfin rejected with
+  HTTP 400, so tapping a tag silently failed to start on the TV. Parameters are
+  now sent as query parameters, so a scan reliably starts the movie on your
+  active Jellyfin session.
+
 ## [1.1.0] - 2026-07-10
 
 ### Added

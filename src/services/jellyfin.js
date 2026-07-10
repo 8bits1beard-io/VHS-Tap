@@ -60,13 +60,12 @@ class JellyfinService {
    */
   async startPlayback(userId, itemId) {
     try {
-      // Send a play command to the user's session
+      // Send a play command to the user's session.
+      // Jellyfin expects itemIds/playCommand as QUERY params, not a JSON body.
       const response = await this.client.post(
         `/Sessions/${userId}/Playing`,
-        {
-          ItemIds: [itemId],
-          PlayCommand: 'PlayNow'
-        }
+        null,
+        { params: { itemIds: itemId, playCommand: 'PlayNow' } }
       );
       return response.data;
     } catch (error) {
@@ -100,13 +99,11 @@ class JellyfinService {
    */
   async sendPlayCommand(sessionId, itemId) {
     try {
+      // Jellyfin expects itemIds/playCommand as QUERY params, not a JSON body.
       const response = await this.client.post(
         `/Sessions/${sessionId}/Playing`,
-        {
-          ItemIds: [itemId],
-          PlayCommand: 'PlayNow',
-          StartPositionTicks: 0
-        }
+        null,
+        { params: { itemIds: itemId, playCommand: 'PlayNow', startPositionTicks: 0 } }
       );
       return response.data;
     } catch (error) {

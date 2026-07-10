@@ -1,6 +1,6 @@
 {
   "name": "vhs-tap",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Tap NFC-enabled VHS tapes to instantly play movies on Jellyfin",
   "main": "src/server.js",
   "scripts": {
