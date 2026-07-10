@@ -18,12 +18,12 @@
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
-    "url": "https://github.com/8bits1beard-io/vhs-tap.git"
+    "url": "https://github.com/8bits1beard-io/VHS-Tap.git"
   },
   "bugs": {
-    "url": "https://github.com/8bits1beard-io/vhs-tap/issues"
+    "url": "https://github.com/8bits1beard-io/VHS-Tap/issues"
   },
-  "homepage": "https://github.com/8bits1beard-io/vhs-tap#readme",
+  "homepage": "https://github.com/8bits1beard-io/VHS-Tap#readme",
   "dependencies": {
     "express": "^4.18.2",
     "axios": "^1.6.0",
